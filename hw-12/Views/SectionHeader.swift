@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 class SectionHeader: UICollectionReusableView {
-    static let identifire = "SectionHeader"
+    static let identifier = "SectionHeader"
     
     // MARK: - UI
     public lazy var title: UILabel = {
@@ -28,6 +28,7 @@ class SectionHeader: UICollectionReusableView {
     public lazy var headerButton: UIButton = {
         var button = UIButton(type: .system)
         button.setTitle("All", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         button.setTitleColor(.blue, for: .normal)
         button.isHidden = true
         return button
@@ -35,6 +36,7 @@ class SectionHeader: UICollectionReusableView {
     
     // MARK: - Lifecycle
     override init(frame: CGRect) {
+        super.init(frame: frame)
         setupViews()
         setupConstraints()
     }
@@ -53,24 +55,23 @@ class SectionHeader: UICollectionReusableView {
     //MARK: - Setup constraints
     private func setupConstraints() {
         separator.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(-15)
-            make.right.top.equalToSuperview()
             make.height.equalTo(1)
+            make.leading.equalToSuperview().offset(-15)
+            make.trailing.equalToSuperview().offset(25)
+            make.top.equalToSuperview()
         }
-        
         title.snp.makeConstraints { make in
-            make.left.equalTo(separator.snp.left)
             make.top.equalTo(separator.snp.bottom).offset(10)
-            
+            make.leading.equalTo(separator.snp.leading)
+            make.bottom.equalToSuperview()
         }
-        
         headerButton.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-15)
+            make.trailing.equalToSuperview().offset(-15)
             make.width.height.equalTo(40)
             make.top.equalTo(separator.snp.bottom).offset(5)
         }
     }
-
+    
 }
 
 

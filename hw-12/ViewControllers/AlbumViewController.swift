@@ -23,29 +23,32 @@ class AlbumViewController: UIViewController {
         title = "Albums"
     }
     
-    var albums: [SectionItem] = []
-    var peopleAndPlaces: [SectionItem] = []
-    var mediaTypes: [MediaFileTypeItem] = []
-    var others: [MediaFileTypeItem] = []
+    var albums: [SectionItem] = MockData.shared.albums
+    var peopleAndPlaces: [SectionItem] = MockData.shared.peopleAndPlaces
+    var mediaTypes: [MediaFileTypeItem] = MockData.shared.mediaTypes
+    var others: [MediaFileTypeItem] = MockData.shared.others
+    
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.dataSource = self
         collection.delegate = self
-        
+        collection.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeader.identifier)
+        collection.register(SectionCollectionViewCell.self, forCellWithReuseIdentifier: SectionCollectionViewCell.identifier)
+        collection.register(ListCollectionViewCell.self, forCellWithReuseIdentifier: ListCollectionViewCell.identifier)
         return collection
     }()
     
     // MARK: - Layout
-    
     private func createLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { sectionIndex, _ in
-            let layoutSectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(0.9), heightDimension: .estimated(2)), elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            let layoutSectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: .init(widthDimension: .fractionalWidth(0.9), heightDimension: .estimated(80)), elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            
             switch sectionIndex {
             case 0:
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                 item.contentInsets = .init(top: 0, leading: 2, bottom: 10, trailing: 5)
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(0.9 / 2), heightDimension: .fractionalWidth(1.2)), repeatingSubitem: item, count: 2)
+                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(0.9 / 2), heightDimension: .fractionalHeight(0.4)), repeatingSubitem: item, count: 2)
                 group.interItemSpacing = .fixed(15)
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .paging
@@ -59,8 +62,8 @@ class AlbumViewController: UIViewController {
                 item.contentInsets = .init(top: 10, leading: 2, bottom: 10, trailing: 10)
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(460)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-                section.orthogonalScrollingBehavior = .none
-                section.interGroupSpacing = 5
+                section.orthogonalScrollingBehavior = .paging
+                //                section.interGroupSpacing = 5
                 section.contentInsets = .init(top: 0, leading: 15, bottom: 25, trailing: 10)
                 section.boundarySupplementaryItems = [layoutSectionHeader]
                 return section
@@ -107,9 +110,7 @@ class AlbumViewController: UIViewController {
     // MARK: - Setup Constraints
     private func setupConstraints() {
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-            make.left.right.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
 }
@@ -120,17 +121,16 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0:
-            albums.count
+            return albums.count
         case 1:
-            peopleAndPlaces.count
+            return peopleAndPlaces.count
         case 2:
-            mediaTypes.count
+            return mediaTypes.count
         case 3:
-            others.count
+            return others.count
         default:
             return 0
         }
-        return section
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -140,7 +140,7 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 return UICollectionReusableView()
             }
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                         withReuseIdentifier: SectionHeader.identifire,
+                                                                         withReuseIdentifier: SectionHeader.identifier,
                                                                          for: indexPath) as! SectionHeader
             header.title.text = "My albums"
             header.headerButton.isHidden = false
@@ -150,7 +150,7 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 return UICollectionReusableView()
             }
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                         withReuseIdentifier: SectionHeader.identifire,
+                                                                         withReuseIdentifier: SectionHeader.identifier,
                                                                          for: indexPath) as! SectionHeader
             header.title.text = "People and places"
             header.headerButton.isHidden = true
@@ -160,7 +160,7 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 return UICollectionReusableView()
             }
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                         withReuseIdentifier: SectionHeader.identifire,
+                                                                         withReuseIdentifier: SectionHeader.identifier,
                                                                          for: indexPath) as! SectionHeader
             header.title.text = "Mediatypes"
             header.headerButton.isHidden = true
@@ -170,10 +170,10 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 return UICollectionReusableView()
             }
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                         withReuseIdentifier: SectionHeader.identifire,
+                                                                         withReuseIdentifier: SectionHeader.identifier,
                                                                          for: indexPath) as! SectionHeader
             header.title.text = "Others"
-            header.headerButton.isHidden = false
+            header.headerButton.isHidden = true
             return header
         default:
             fatalError("What happened bro?")
@@ -181,7 +181,51 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "", for: indexPath)
-        return cell
+        switch indexPath.section {
+        case 0:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SectionCollectionViewCell.identifier, for: indexPath) as? SectionCollectionViewCell else {
+                fatalError("no cell")
+            }
+            let albumItem = albums[indexPath.item]
+            cell.configure(with: albumItem)
+            return cell
+            
+        case 1:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SectionCollectionViewCell.identifier, for: indexPath) as? SectionCollectionViewCell else {
+                fatalError()
+            }
+            let peopleAndPlaces = peopleAndPlaces[indexPath.item]
+            cell.configure(with: peopleAndPlaces)
+            return cell
+            
+        case 2:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCollectionViewCell.identifier, for: indexPath) as? ListCollectionViewCell else {
+                fatalError()
+            }
+            let mediaTypes = mediaTypes[indexPath.item]
+            cell.configure(with: mediaTypes, isLastItem: true)
+            return cell
+            
+        case 3:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCollectionViewCell.identifier, for: indexPath) as? ListCollectionViewCell else {
+                fatalError()
+            }
+            let mediaTypes = others[indexPath.item]
+            cell.configure(with: mediaTypes, isLastItem: true)
+            return cell
+        default:
+            fatalError()
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let isLastCellInSection = indexPath.item == collectionView.numberOfItems(inSection: indexPath.section) - 1
+        if let listCell = cell as? ListCollectionViewCell {
+            listCell.setSeparatorHidden(isLastCellInSection)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
     }
 }
